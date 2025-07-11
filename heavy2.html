@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Heavy Ad Test</title>
+    <title>Тест тяжелой рекламы (Улучшенный)</title>
     <style>
         body {
             font-family: system-ui, sans-serif;
@@ -24,70 +24,140 @@
             text-align: center;
             max-width: 600px;
         }
-        iframe {
+        #ad-container {
             border: 2px dashed #ccc;
             width: 300px;
             height: 250px;
+            background-color: #fff;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
         }
     </style>
 </head>
 <body>
-    <h1>Main Page Content</h1>
-    <p>Below is an iframe that simulates a "heavy ad". Chrome should detect its high CPU usage and block it after a short period (typically within a minute).</p>
+    <h1>Основной контент страницы</h1>
+    <p>Ниже находится фрейм, симулирующий "тяжелую рекламу". Эта улучшенная версия с большей вероятностью будет заблокирована Chrome.</p>
     
-    <!-- 
-      This iframe is designed to be flagged by Chrome's heavy ad intervention.
-      The `srcdoc` attribute contains a full HTML document.
-      Inside this document, a script runs a continuous, CPU-intensive loop.
-    -->
-    <iframe title="Heavy Ad" srcdoc="
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <style>
-                body { 
-                    margin: 0; 
-                    padding: 10px;
-                    background-color: #ffcccc; 
-                    color: #a60000;
-                    font-family: sans-serif;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    text-align: center;
-                    font-weight: bold;
-                    border: 2px solid #a60000;
-                    box-sizing: border-box;
-                    height: 100vh;
-                }
-            </style>
-        </head>
-        <body>
-            <div>
-                I am a very 'heavy' ad, consuming lots of CPU!
-            </div>
-            <script>
-                // This function creates a busy loop to consume CPU resources.
-                function heavyLoad() {
-                    const startTime = Date.now();
-                    // Run a loop for 50ms to simulate heavy computation.
-                    while (Date.now() - startTime < 50) {
-                        // This empty loop keeps the CPU core busy.
-                        let a = 1 + 1;
-                    }
-                    // Use setTimeout with 0ms delay to schedule the next run.
-                    // This yields to the event loop just long enough to prevent a 
-                    // total page freeze but ensures continuous high CPU usage.
-                    setTimeout(heavyLoad, 0);
-                }
+    <div id="ad-container">
+        <!-- Рекламный фрейм будет вставлен сюда с помощью JavaScript -->
+    </div>
 
-                // Start the heavy process.
-                console.log('Starting heavy ad script...');
-                heavyLoad();
-            </script>
-        </body>
-        </html>
-    "></iframe>
+    <script>
+        // --- СКРИПТ ДЛЯ СОЗДАНИЯ И ВНЕДРЕНИЯ "ТЯЖЕЛОГО" ФРЕЙМА ---
+
+        // HTML-содержимое для нашего "тяжелого" фрейма.
+        // Включает в себя симуляцию нагрузки на CPU и сеть.
+        const heavyAdHtml = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <style>
+                    body { 
+                        margin: 0; 
+                        padding: 10px;
+                        background-color: #ffcccc; 
+                        color: #a60000;
+                        font-family: sans-serif;
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: center;
+                        text-align: center;
+                        font-weight: bold;
+                        border: 2px solid #a60000;
+                        box-sizing: border-box;
+                        height: 100vh;
+                        overflow: hidden;
+                    }
+                    #log {
+                        position: absolute;
+                        bottom: 5px;
+                        font-size: 10px;
+                        color: black;
+                        background: #ffffff99;
+                        padding: 2px 4px;
+                        border-radius: 3px;
+                    }
+                </style>
+            </head>
+            <body>
+                <div>
+                    Я очень "тяжелая" реклама! <br> (CPU + Network)
+                    <div id="log">Запуск...</div>
+                </div>
+                <script>
+                    const log = (msg) => {
+                        const logEl = document.getElementById('log');
+                        if(logEl) logEl.textContent = msg;
+                    };
+
+                    // 1. Функция для сильной нагрузки на CPU
+                    function heavyCpuLoad() {
+                        const startTime = Date.now();
+                        // Увеличиваем время цикла, чтобы нагрузка была более заметной
+                        while (Date.now() - startTime < 100) {
+                            // Пустой цикл для потребления ресурсов CPU
+                            let a = Math.random() * Math.random();
+                        }
+                        // Запускаем следующую итерацию сразу же
+                        setTimeout(heavyCpuLoad, 0);
+                    }
+
+                    // 2. Функция для симуляции большой нагрузки на сеть
+                    function heavyNetworkLoad() {
+                        // Создаем очень большой массив данных (около 5 МБ)
+                        const dataSize = 5 * 1024 * 1024; // 5 MB
+                        const largeData = new Uint8Array(dataSize);
+                        
+                        // Заполняем его случайными данными, чтобы избежать сжатия
+                        for (let i = 0; i < dataSize; i++) {
+                            largeData[i] = Math.floor(Math.random() * 256);
+                        }
+                        
+                        const blob = new Blob([largeData], { type: 'application/octet-stream' });
+                        const url = URL.createObjectURL(blob);
+
+                        // Пытаемся "скачать" его. Это создаст сетевую активность.
+                        fetch(url).then(() => {
+                           // После "загрузки" освобождаем память
+                           URL.revokeObjectURL(url);
+                        }).catch(e => {}); // Ошибки игнорируем
+                        
+                        log('Симуляция сети: запрос 5MB...');
+
+                        // Повторяем каждые 15 секунд, чтобы поддерживать сетевую активность
+                        setTimeout(heavyNetworkLoad, 15000);
+                    }
+
+                    // Запускаем обе "тяжелые" функции
+                    console.log('Запуск скрипта тяжелой рекламы...');
+                    log('Нагрузка на CPU запущена...');
+                    heavyCpuLoad();
+                    heavyNetworkLoad();
+                <\/script> <!-- Экранирование закрывающего тега script -->
+            </body>
+            </html>
+        `;
+
+        // Создаем Blob из нашего HTML-кода.
+        // Blob (Binary Large Object) - это объект, похожий на файл, с необработанными данными.
+        const blob = new Blob([heavyAdHtml], { type: 'text/html' });
+
+        // Создаем URL для этого Blob. URL будет выглядеть как "blob:http://..."
+        // Это создает уникальный origin для фрейма, что больше похоже на реальную рекламу.
+        const adUrl = URL.createObjectURL(blob);
+
+        // Создаем iframe и устанавливаем его src на наш Blob URL.
+        const iframe = document.createElement('iframe');
+        iframe.title = "Тяжелая Реклама (Улучшенная)";
+        iframe.src = adUrl;
+
+        // Добавляем iframe на страницу.
+        document.getElementById('ad-container').appendChild(iframe);
+    </script>
 
 </body>
 </html>
