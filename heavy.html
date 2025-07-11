@@ -1,40 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
-<meta charset="utf-8">
-<title>Heavy-Ad demo via Prebid</title>
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<style>
-  body { font-family:sans-serif; margin:1rem }
-  h1  { font-size:1.2rem }
-  iframe { width:100%; border:2px inset #ccc; margin:.5rem 0 }
-</style>
+  <meta charset="utf-8" />
+  <title>Heavy-Ad dual demo (Prebid.js)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: sans-serif; margin: 1rem }
+    h1   { font-size: 1.25rem }
+    .slot { width: 100%; border: 2px inset #ccc; margin: .5rem 0 }
+    iframe { width: 100%; height: 100%; border: 0 }
+  </style>
 
-<h1>Heavy-Ad Intervention ⚖ demo</h1>
-<div id="slot"></div>
+  <h1>Heavy Ad Intervention ⚖ demo</h1>
+  <div id="slot-net" class="slot" style="height: 600px"></div>
+  <div id="slot-cpu" class="slot" style="height: 250px"></div>
 
-<script async src="https://cdn.jsdelivr.net/npm/prebid.js/dist/prebid.js"></script>
-<script>
-  "use strict";
+  <script async src="https://cdn.jsdelivr.net/npm/prebid.js@7/dist/prebid.js"></script>
+  <script>
+    "use strict";
 
-  const big = "https://upload.wikimedia.org/wikipedia/commons/3/3f/Fronalpstock_big.jpg";
+    const bigPic =
+      "https://upload.wikimedia.org/wikipedia/commons/3/3f/Fronalpstock_big.jpg";
 
-  const creative = `
-    <html><body style="margin:0">
-      <img src="${big}" style="width:100%">
-      <script>
-        /* CPU burner so the frame exceeds both limits */
-        let x = 0;
-        setInterval(() => { for (let i=0;i<1e7;i++) x+=Math.random() }, 0);
-      <\/script>
-    </body></html>`;
-    console.log('bbb')
+    const creativeNet = `
+      <html>
+        <body style="margin:0">
+          <img src="${bigPic}" style="width:100%">
+        </body>
+      </html>
+    `;
 
-  window.addEventListener('PrebidLoaded', () => {
-    console.log('aaa')
-    /* Prebid helper that creates an ad iframe and writes our HTML */
-    pbjs.renderAd(
-      document.getElementById('slot'),
-      { ad: creative, width: 300, height: 600 }
-    );
-  });
-</script>
+    const creativeCpu = `
+      <html>
+        <head>
+          <style>
+            body { margin: 0; font-family: sans-serif; text-align: center }
+            #ops { font-weight: bold }
+          </style>
+        </head>
+        <body>
+          <p>CPU-heavy ad</p>
+          <span id="ops">0</span>
+          <script>
+            let n = 0;
+            function spin() {
+              const end = performance.now() + 10;
+              while (performance.now() < end) { n++; }
+              document.getElementById("ops").textContent = n.toLocaleString();
+              requestAnimationFrame(spin);
+            }
+            spin();
+          <\\/script>
+        </body>
+      </html>
+    `;
+
+    window.pbjs = window.pbjs || {};
+    pbjs.que = pbjs.que || [];
+
+    pbjs.que.push(() => {
+      const netFrame = document.createElement("iframe");
+      netFrame.srcdoc = creativeNet;
+      document.getElementById("slot-net").appendChild(netFrame);
+
+      const cpuFrame = document.createElement("iframe");
+      cpuFrame.srcdoc = creativeCpu;
+      document.getElementById("slot-cpu").appendChild(cpuFrame);
+    });
+  </script>
+</html>
