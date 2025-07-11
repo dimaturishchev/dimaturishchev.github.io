@@ -58,6 +58,7 @@
     pbjs.que = pbjs.que || [];
 
     pbjs.que.push(() => {
+      console.log('bbb')
       const netFrame = document.createElement("iframe");
       netFrame.srcdoc = creativeNet;
       document.getElementById("slot-net").appendChild(netFrame);
