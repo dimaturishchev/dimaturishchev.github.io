@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heavy Ad Test</title>
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
+            color: #333;
+        }
+        h1 {
+            color: #1c1e21;
+        }
+        p {
+            margin-bottom: 20px;
+            text-align: center;
+            max-width: 600px;
+        }
+        iframe {
+            border: 2px dashed #ccc;
+            width: 300px;
+            height: 250px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Main Page Content</h1>
+    <p>Below is an iframe that simulates a "heavy ad". Chrome should detect its high CPU usage and block it after a short period (typically within a minute).</p>
+    
+    <!-- 
+      This iframe is designed to be flagged by Chrome's heavy ad intervention.
+      The `srcdoc` attribute contains a full HTML document.
+      Inside this document, a script runs a continuous, CPU-intensive loop.
+    -->
+    <iframe title="Heavy Ad" srcdoc="
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <style>
+                body { 
+                    margin: 0; 
+                    padding: 10px;
+                    background-color: #ffcccc; 
+                    color: #a60000;
+                    font-family: sans-serif;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    text-align: center;
+                    font-weight: bold;
+                    border: 2px solid #a60000;
+                    box-sizing: border-box;
+                    height: 100vh;
+                }
+            </style>
+        </head>
+        <body>
+            <div>
+                I am a very 'heavy' ad, consuming lots of CPU!
+            </div>
+            <script>
+                // This function creates a busy loop to consume CPU resources.
+                function heavyLoad() {
+                    const startTime = Date.now();
+                    // Run a loop for 50ms to simulate heavy computation.
+                    while (Date.now() - startTime < 50) {
+                        // This empty loop keeps the CPU core busy.
+                        let a = 1 + 1;
+                    }
+                    // Use setTimeout with 0ms delay to schedule the next run.
+                    // This yields to the event loop just long enough to prevent a 
+                    // total page freeze but ensures continuous high CPU usage.
+                    setTimeout(heavyLoad, 0);
+                }
+
+                // Start the heavy process.
+                console.log('Starting heavy ad script...');
+                heavyLoad();
+            </script>
+        </body>
+        </html>
+    "></iframe>
+
+</body>
+</html>
