@@ -1,27 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
-<meta charset="utf-8">
-<title>Heavy Ad Intervention demo</title>
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<style>
-*{box-sizing:border-box}
-body{font-family:sans-serif;margin:1rem}
-h1{font-size:1.2rem;margin:.25rem}
-iframe{width:100%;border:2px inset #ddd;margin:.25rem 0}
-</style>
-<h1>Heavy Ad Intervention ⚖️ demo</h1>
-<main id="ad-area"></main>
+  <meta charset="utf-8" />
+  <title>Heavy-Ad test (Chrome 2025)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; margin: 1rem; }
+    h1  { font-size: 1.25rem; margin: 0 0 .75rem; }
+    iframe { width: 100%; border: 2px inset #ddd; margin: .5rem 0; }
+  </style>
+
+  <h1>Heavy Ad Intervention ⚖ demo</h1>
+  <main id="zone"></main>
+
+  <script>
+    "use strict";
+
+    const zone = document.getElementById("zone");
+
+    const nextId = () =>
+      `google_ads_iframe_${crypto.randomUUID().replace(/-/g, "").slice(0, 8)}`;
+
+    function add(src, h) {
+      const f = document.createElement("iframe");
+      f.name = f.id = nextId();
+      f.width = 300;
+      f.height = h;
+      f.scrolling = "no";
+      f.allow = "autoplay";
+      f.srcdoc = src;
+      zone.appendChild(f);
+    }
+
+    const gads =
+      "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js";
+    const pixel =
+      "https://securepubads.g.doubleclick.net/static/1px.png";
+
+    const cpuSrc = `<!doctype html>
+<meta charset=utf-8>
+<script async src="${gads}"><\\/script>
+<img src="${pixel}" width=1 height=1 alt="">
+<style>body{margin:0;font-family:sans-serif;text-align:center}</style>
+<p>CPU-heavy ad<br><span id=o>0</span></p>
 <script>
-'use strict';
-const area=document.getElementById('ad-area');
-const fid=()=>`google_ads_iframe_${crypto.randomUUID().replace(/-/g,'').slice(0,8)}`;
-function add(src,h){const f=document.createElement('iframe');f.name=f.id=fid();f.src=src;f.width=300;f.height=h;f.scrolling='no';f.allow='autoplay';area.appendChild(f);}
-const GADS='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js';
-const PIX='https://securepubads.g.doubleclick.net/static/1px.png';
-const cpuHTML=`<!doctype html><meta charset="utf-8"><script async src="${GADS}"><\\/script><img src="${PIX}" width="1" height="1" alt=""><style>body{margin:0;font-family:sans-serif;text-align:center}</style><p>Heavy CPU ad<br><span id="ops">0</span> operations</p><script>let cnt=0;function c(){const e=performance.now()+10;while(performance.now()<e){cnt++;}document.getElementById('ops').textContent=cnt.toLocaleString();requestAnimationFrame(c);}c();<\\/script>`;
-add('data:text/html;base64,'+btoa(cpuHTML),250);
-const bigImg='https://upload.wikimedia.org/wikipedia/commons/3/3f/Fronalpstock_big.jpg';
-const netHTML=`<!doctype html><meta charset="utf-8"><script async src="${GADS}"><\\/script><img src="${PIX}" width="1" height="1" alt=""><img src="${bigImg}" style="width:100%;display:block">`;
-add('data:text/html;base64,'+btoa(netHTML),600);
-</script>
+  let n=0;
+  function w(){
+    const e=performance.now()+10;
+    while(performance.now()<e){n++;}
+    document.getElementById("o").textContent=n.toLocaleString();
+    requestAnimationFrame(w);
+  }
+  w();
+<\\/script>`;
+
+    add(cpuSrc, 250);
+
+    const big =
+      "https://speed.hetzner.de/5MB.bin";
+
+    const netSrc = `<!doctype html>
+<meta charset=utf-8>
+<script async src="${gads}"><\\/script>
+<img src="${pixel}" width=1 height=1 alt="">
+<img src="${big}" style="width:100%;display:block">`;
+
+    add(netSrc, 600);
+  </script>
 </html>
