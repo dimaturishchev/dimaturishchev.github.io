@@ -1,51 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
   <meta charset="utf-8" />
-  <title>Heavy-Ad demo 2025</title>
+  <title>Heavy-Ad test</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
-    *{box-sizing:border-box}
-    body{font-family:sans-serif;margin:1rem}
-    h1{font-size:1.25rem;margin:0 0 .75rem}
-    iframe{width:100%;border:2px inset #ddd;margin:.5rem 0}
+    *{box-sizing:border-box}body{font-family:sans-serif;margin:1rem}
+    h1{font-size:1.2rem;margin:.5rem 0}iframe{width:100%;border:2px inset #ddd;margin:.5rem 0}
   </style>
-
   <h1>Heavy Ad Intervention ⚖ demo</h1>
-  <main id="zone"></main>
+  <iframe id="ad" width="300" height="600" scrolling="no"></iframe>
 
   <script>
-  "use strict";
-  const zone=document.getElementById("zone");
-  const id=()=>"google_ads_iframe_"+crypto.randomUUID().replace(/-/g,"").slice(0,8);
+    "use strict";
 
-  function add(src,h){
-    const f=document.createElement("iframe");
-    f.name=f.id=id();
-    f.width=300;f.height=h;f.scrolling="no";f.allow="autoplay";
-    f.srcdoc=src;zone.appendChild(f);
-  }
-
-  const gads="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js";
-  const px ="https://securepubads.g.doubleclick.net/static/1px.png";
-
-  const blockers=`<img src="${px}" width=1 height=1 alt="">
-                  <img src="${px}" width=1 height=1 alt="">
-                  <img src="${px}" width=1 height=1 alt="">`;
-
-  const cpu=`<!doctype html><meta charset=utf-8>
-<script async src="${gads}"><\\/script>
-${blockers}
-<style>body{margin:0;font-family:sans-serif;text-align:center}</style>
-<p>CPU-heavy ad<br><span id=o>0</span></p>
-<script>
- let n=0;function w(){const e=performance.now()+10;while(performance.now()<e){n++;}document.getElementById("o").textContent=n.toLocaleString();requestAnimationFrame(w);}w();<\\/script>`;
-  add(cpu,250);
-
-  const big="https://upload.wikimedia.org/wikipedia/commons/3/3f/Fronalpstock_big.jpg";
-  const net=`<!doctype html><meta charset=utf-8>
-<script async src="${gads}"><\\/script>
-${blockers}
+    const adFrame = document.getElementById("ad");
+    // ----- build heavy test page -----
+    const big = "https://upload.wikimedia.org/wikipedia/commons/3/3f/Fronalpstock_big.jpg";
+    const html = `<!doctype html><meta charset=utf-8>
 <img src="${big}" style="width:100%;display:block">`;
-  add(net,600);
+    // ----- push to a blob URL -----
+    const blobURL = URL.createObjectURL(new Blob([html],{type:"text/html"}));
+    // ----- create a path that matches EasyList generic ad rules -----
+    const flagged = "/ads/net.html#" + Date.now();
+    // ----- redirect the blob through a Service-Worker trick -----
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register(URL.createObjectURL(new Blob([`
+        self.addEventListener('fetch',e=>{
+          if(e.request.url.includes('/ads/net.html'))e.respondWith(fetch('${blobURL}'));
+        });`],{type:"text/javascript"}))).then(()=>{
+          adFrame.src = flagged;
+        });
+    }
   </script>
 </html>
