@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
-  <meta charset="utf-8" />
-  <title>Heavy-Ad demo 2025</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="utf-8">
+  <title>Heavy-Ad demo</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <style>
-    * { box-sizing:border-box }
-    body { font-family:sans-serif; margin:1rem }
-    h1 { font-size:1.25rem; margin:0 0 .75rem }
-    iframe { width:100%; border:2px inset #ddd; margin:.5rem 0 }
+    *{box-sizing:border-box}
+    body{font-family:sans-serif;margin:1rem}
+    h1{font-size:1.25rem;margin:0 0 .75rem}
+    iframe{width:100%;border:2px inset #ddd;margin:.5rem 0}
   </style>
 
   <h1>Heavy Ad Intervention ⚖ demo</h1>
@@ -17,12 +17,13 @@
   <script>
     "use strict";
 
-    const bad = "https://ad.doubleclick.net/ddm/trackimp/N123456.1";
+    const bad ="https://ib.adnxs.com/pv?member_id=12345";
+    const trip =`<img src="${bad}" width=1 height=1 alt="">
+<img src="${bad}" width=1 height=1 alt="">
+<img src="${bad}" width=1 height=1 alt="">`;
 
-    const cpuDoc = `<!doctype html>
-<meta charset=utf-8>
-<img src="${bad}" width=1 height=1 alt="">
-<img src="${bad}" width=1 height=1 alt="">
+    const cpuDoc = `<!doctype html><meta charset=utf-8>
+${trip}
 <style>body{margin:0;font-family:sans-serif;text-align:center}</style>
 <p>CPU-heavy ad<br><span id=o>0</span></p>
 <script>
@@ -30,18 +31,16 @@
  function spin(){
    const t=performance.now()+10;
    while(performance.now()<t){n++;}
-   document.getElementById('o').textContent=n.toLocaleString();
+   document.getElementById("o").textContent=n.toLocaleString();
    requestAnimationFrame(spin);
  }
  spin();
 <\/script>`;
 
-    const bigPic = "https://upload.wikimedia.org/wikipedia/commons/3/3f/Fronalpstock_big.jpg";
+    const bigPic ="https://upload.wikimedia.org/wikipedia/commons/3/3f/Fronalpstock_big.jpg";
 
-    const netDoc = `<!doctype html>
-<meta charset=utf-8>
-<img src="${bad}" width=1 height=1 alt="">
-<img src="${bad}" width=1 height=1 alt="">
+    const netDoc = `<!doctype html><meta charset=utf-8>
+${trip}
 <img src="${bigPic}" style="width:100%;display:block">`;
 
     document.getElementById("cpu").srcdoc = cpuDoc;
