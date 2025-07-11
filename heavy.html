@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8">
+<title>Heavy Ad Intervention Test</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+*{box-sizing:border-box}body{font-family:sans-serif;margin:1rem}h1{font-size:1.2rem;margin:.25rem}iframe{width:100%;border:2px inset #ddd;margin:.25rem 0}
+</style>
+<h1>Heavy Ad Intervention ⚖️ demo</h1>
+<main class="ad-area"></main>
+<script>
+'use strict';
+const area=document.querySelector('.ad-area');
+const id=()=>'google_ads_iframe_'+crypto.randomUUID().replace(/-/g,'').slice(0,8);
+function add(src,h=250){const f=document.createElement('iframe');f.name=f.id=id();f.src=src;f.width=300;f.height=h;f.scrolling='no';f.setAttribute('allow','autoplay');area.appendChild(f)}
+add('https://rowan.fyi/made/heavy-ads/adserver-cpu/adunit/');
+const pic='https://upload.wikimedia.org/wikipedia/commons/3/3f/Fronalpstock_big.jpg';
+const html='<!doctype html><meta charset=utf-8><img src="'+pic+'" style=width:100%>';
+add('data:text/html;base64,'+btoa(html),600);
+</script>
+</html>
