@@ -1,35 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
   <meta charset="utf-8" />
-  <title>Heavy-Ad test</title>
+  <title>Heavy-Ad demo 2025</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <style>
-    *{box-sizing:border-box}body{font-family:sans-serif;margin:1rem}
-    h1{font-size:1.2rem;margin:.5rem 0}iframe{width:100%;border:2px inset #ddd;margin:.5rem 0}
+    * { box-sizing:border-box }
+    body { font-family:sans-serif; margin:1rem }
+    h1 { font-size:1.25rem; margin:0 0 .75rem }
+    iframe { width:100%; border:2px inset #ddd; margin:.5rem 0 }
   </style>
+
   <h1>Heavy Ad Intervention ⚖ demo</h1>
-  <iframe id="ad" width="300" height="600" scrolling="no"></iframe>
+  <iframe id="cpu" width="300" height="250" scrolling="no"></iframe>
+  <iframe id="net" width="300" height="600" scrolling="no"></iframe>
 
   <script>
     "use strict";
 
-    const adFrame = document.getElementById("ad");
-    // ----- build heavy test page -----
-    const big = "https://upload.wikimedia.org/wikipedia/commons/3/3f/Fronalpstock_big.jpg";
-    const html = `<!doctype html><meta charset=utf-8>
-<img src="${big}" style="width:100%;display:block">`;
-    // ----- push to a blob URL -----
-    const blobURL = URL.createObjectURL(new Blob([html],{type:"text/html"}));
-    // ----- create a path that matches EasyList generic ad rules -----
-    const flagged = "/ads/net.html#" + Date.now();
-    // ----- redirect the blob through a Service-Worker trick -----
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register(URL.createObjectURL(new Blob([`
-        self.addEventListener('fetch',e=>{
-          if(e.request.url.includes('/ads/net.html'))e.respondWith(fetch('${blobURL}'));
-        });`],{type:"text/javascript"}))).then(()=>{
-          adFrame.src = flagged;
-        });
-    }
+    const bad = "https://ad.doubleclick.net/ddm/trackimp/N123456.1";
+
+    const cpuDoc = `<!doctype html>
+<meta charset=utf-8>
+<img src="${bad}" width=1 height=1 alt="">
+<img src="${bad}" width=1 height=1 alt="">
+<style>body{margin:0;font-family:sans-serif;text-align:center}</style>
+<p>CPU-heavy ad<br><span id=o>0</span></p>
+<script>
+ let n=0;
+ function spin(){
+   const t=performance.now()+10;
+   while(performance.now()<t){n++;}
+   document.getElementById('o').textContent=n.toLocaleString();
+   requestAnimationFrame(spin);
+ }
+ spin();
+<\/script>`;
+
+    const bigPic = "https://upload.wikimedia.org/wikipedia/commons/3/3f/Fronalpstock_big.jpg";
+
+    const netDoc = `<!doctype html>
+<meta charset=utf-8>
+<img src="${bad}" width=1 height=1 alt="">
+<img src="${bad}" width=1 height=1 alt="">
+<img src="${bigPic}" style="width:100%;display:block">`;
+
+    document.getElementById("cpu").srcdoc = cpuDoc;
+    document.getElementById("net").srcdoc = netDoc;
   </script>
 </html>
