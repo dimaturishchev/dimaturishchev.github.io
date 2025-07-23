@@ -1,17 +1,51 @@
-<!doctype html>
-<meta charset=utf-8>
-<title>GPU‑crash</title>
-<style>
-html,body{margin:0;height:100%;overflow:hidden;background:#000}
-#wrap{position:relative;width:100%;height:100%;
-animation:r .15s linear infinite}
-@keyframes r{to{filter:hue-rotate(1turn)}}
-.layer{position:absolute;inset:0;-webkit-backdrop-filter:blur(30px) saturate(200%);backdrop-filter:blur(30px) saturate(200%)}
-</style>
-<script>
-for(let i=0;i<120;i++){
- const d=document.createElement('div');d.className='layer';
- d.style.animationDelay=(i*10)+'ms';document.getElementById('wrap')?.append(d)??document.body.append(d);
-}
-</script>
-<div id="wrap"></div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>GPU‑crash (iOS Safari)</title>
+
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      overflow: hidden;
+      background: #000;
+    }
+
+    #wrap {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      animation: hueSpin 0.15s linear infinite;
+    }
+
+    @keyframes hueSpin {
+      to { filter: hue-rotate(1turn); }
+    }
+
+    .layer {
+      position: absolute;
+      inset: 0;
+      -webkit-backdrop-filter: blur(30px) saturate(200%);
+      backdrop-filter: blur(30px) saturate(200%);
+    }
+  </style>
+</head>
+
+<body>
+  <div id="wrap"></div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const container = document.getElementById('wrap');
+
+      for (let i = 0; i < 120; i += 1) {
+        const layer = document.createElement('div');
+        layer.className = 'layer';
+        layer.style.animationDelay = (i * 10) + 'ms';
+        container.appendChild(layer);
+      }
+    });
+  </script>
+</body>
+</html>
