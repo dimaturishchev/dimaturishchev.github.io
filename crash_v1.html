@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Safari Crash Counter</title>
+  <title>Safari Chunked Crash</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <style>
     body {
@@ -23,31 +23,31 @@
   </style>
 </head>
 <body>
-  <h1>Crashing Fast</h1>
-  <p id="counter">Allocated: 0 MB</p>
+  <h1>Crashing in Chunks…</h1>
+  <p id="counter">Allocated: 0 MB</p>
 
   <script>
-    (function crashWithCounter(){
+    (function chunkedCrash() {
       const allocations = [];
-      let sizeMB = 1;            // start with 1 MB
-      let totalMB = 0;           // running total
+      const CHUNK_MB = 256;         // 256 MB per buffer
+      let totalMB = 0;              // cumulative total
 
       function step() {
-        // allocate one buffer, then update counters
-        allocations.push(new ArrayBuffer(sizeMB * 1024 * 1024));
-        totalMB += sizeMB;
-        sizeMB *= 2;             // double next time
+        try {
+          allocations.push(new ArrayBuffer(CHUNK_MB * 1024 * 1024));
+          totalMB += CHUNK_MB;
+          document.getElementById('counter').textContent =
+            `Allocated: ${totalMB.toLocaleString()} MB`;
 
-        // update the on‑page counter
-        document.getElementById('counter').textContent =
-          `Allocated: ${totalMB.toLocaleString()} MB`;
+          window.requestAnimationFrame(step);
 
-        // queue next iteration as soon as possible
-        // (still very tight, so crash in ≪1 s)
-        window.requestAnimationFrame(step);
+        } catch (e) {
+          document.getElementById('counter').textContent +=
+            ' (hit buffer limit)';
+          console.error('Allocation error:', e);
+        }
       }
 
-      // start the loop
       step();
     })();
   </script>
