@@ -2,25 +2,53 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Quick Safari Crash</title>
+  <title>Safari Crash Counter</title>
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <style>
-    body{display:flex;justify-content:center;align-items:center;height:100vh;font-family:sans-serif;background:#f8f8f8;color:#333}
+    body {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: sans-serif;
+      background: #f8f8f8;
+      color: #333;
+    }
+    #counter {
+      margin-top: 1rem;
+      font-size: 1.2rem;
+    }
   </style>
 </head>
 <body>
-  <div>
-    <h1>Crashing Fast…</h1>
-    <p>Allocating until Safari dies.</p>
-  </div>
+  <h1>Crashing Fast</h1>
+  <p id="counter">Allocated: 0 MB</p>
+
   <script>
-    (function crashFast(){
-      const a=[];
-      let size=1;
-      while(true){
-        a.push(new ArrayBuffer(size*1024*1024));
-        size*=2;
+    (function crashWithCounter(){
+      const allocations = [];
+      let sizeMB = 1;            // start with 1 MB
+      let totalMB = 0;           // running total
+
+      function step() {
+        // allocate one buffer, then update counters
+        allocations.push(new ArrayBuffer(sizeMB * 1024 * 1024));
+        totalMB += sizeMB;
+        sizeMB *= 2;             // double next time
+
+        // update the on‑page counter
+        document.getElementById('counter').textContent =
+          `Allocated: ${totalMB.toLocaleString()} MB`;
+
+        // queue next iteration as soon as possible
+        // (still very tight, so crash in ≪1 s)
+        window.requestAnimationFrame(step);
       }
+
+      // start the loop
+      step();
     })();
   </script>
 </body>
